@@ -47,7 +47,21 @@ async function handleRequest(request: NextRequest, routeParams: string[]) {
     const contentType = request.headers.get('content-type');
     if (contentType && contentType.includes('multipart/form-data')) {
         const formData = await request.formData();
-        proxyBody = formData;
+        const newFormData = new FormData();
+
+        // Recreate the FormData to ensure proper structure
+        for (const [key, value] of formData.entries()) {
+            if (value instanceof File) {
+                newFormData.append(key, value, value.name);
+            } else {
+                newFormData.append(key, value);
+            }
+        }
+
+        proxyBody = newFormData;
+
+        // Remove the content-type header to let the browser set it correctly
+        proxyHeaders.delete('content-type');
     } else if (request.method !== 'GET' && request.method !== 'HEAD') {
         proxyBody = await request.text();
     }
