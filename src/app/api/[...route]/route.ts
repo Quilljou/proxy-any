@@ -8,6 +8,8 @@ const PROXYMAP = {
     'groq': 'api.groq.com',
 };
 
+export const runtime = 'edge';
+
 export async function GET(request: NextRequest, { params }: { params: { route: string[] } }) {
     return handleRequest(request, params.route);
 }
