@@ -40,15 +40,27 @@ async function handleRequest(request: NextRequest, routeParams: string[]) {
     const realUrl = `https://${realHost}/${rest.join('/')}${search}`;
     console.log(realUrl);
 
+    let proxyBody: BodyInit | null = null;
+    let proxyHeaders = new Headers(request.headers);
+
+    // Handle multipart/form-data
+    const contentType = request.headers.get('content-type');
+    if (contentType && contentType.includes('multipart/form-data')) {
+        const formData = await request.formData();
+        proxyBody = formData;
+    } else if (request.method !== 'GET' && request.method !== 'HEAD') {
+        proxyBody = await request.text();
+    }
+
     const proxyRequest = new Request(realUrl, {
         method: request.method,
-        headers: request.headers,
-        body: request.method !== 'GET' && request.method !== 'HEAD' ? await request.text() : null,
+        headers: proxyHeaders,
+        body: proxyBody,
     });
 
     try {
         const response = await fetch(proxyRequest);
-        const responseBody = await response.text();
+        const responseBody = await response.arrayBuffer();
         return new NextResponse(responseBody, {
             status: response.status,
             headers: response.headers,
