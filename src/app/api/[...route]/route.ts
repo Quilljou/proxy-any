@@ -6,6 +6,7 @@ const PROXYMAP = {
     'gumroad': 'api.gumroad.com',
     'lemon': 'api.lemonsqueezy.com',
     'groq': 'api.groq.com',
+    'gemini': 'generativelanguage.googleapis.com'
 };
 
 export const runtime = 'edge';
